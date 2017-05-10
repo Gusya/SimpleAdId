@@ -49,23 +49,22 @@ public class SimpleAdIdTest {
     SimpleAdId.AdIdInfo adIdInfo;
 
     Handler mHandler;
-    SimpleAdId simpleAdId;
 
     @Before
     public void beforeTest(){
         MockitoAnnotations.initMocks(this);
         mHandler = new Handler();
-        simpleAdId = new SimpleAdId(listener, mHandler);
+
     }
 
     @After
     public void afterTest(){
-        simpleAdId = null;
         mHandler = null;
     }
 
     @Test
     public void onSuccessShouldBeCalledOnce(){
+        SimpleAdId simpleAdId = new SimpleAdId(listener, mHandler);
         simpleAdId.onSuccessOnUI(adIdInfo);
 
         verify(listener, times(1)).onSuccess(any(SimpleAdId.AdIdInfo.class));
@@ -73,6 +72,7 @@ public class SimpleAdIdTest {
 
     @Test
     public void onExceptionShouldBeCalledOnce(){
+        SimpleAdId simpleAdId = new SimpleAdId(listener, mHandler);
         simpleAdId.onErrorOnUI(new Exception());
 
         verify(listener, times(1)).onException(any(Exception.class));
