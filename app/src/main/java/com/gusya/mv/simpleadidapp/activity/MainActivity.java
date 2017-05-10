@@ -1,4 +1,4 @@
-package com.gusya.mv.simpleadid.activity;
+package com.gusya.mv.simpleadidapp.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
