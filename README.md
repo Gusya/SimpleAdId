@@ -1,7 +1,7 @@
 # SimpleAdId
 A convinient way to retrieve 'Advertising ID' and 'Is Tracking Enabled' flag without any Play Services dependencies in Android applications.
 
-#Install
+## Install
 
 Gradle:
 ```
@@ -11,7 +11,7 @@ compile 'com.gusya.mv:simple-adid:0.9.0'
 Code:
 Copy `SimpleAdId.java` from library module into your project or build this project as jar\aar file.
 
-#Usage
+## Usage
 
 Simply invoke static `SimpleAdId.getAdInfo` method while supplying application context and a listener object.
 Be aware that listener's methods will be invoked on UI thread.
