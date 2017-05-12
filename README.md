@@ -1,4 +1,4 @@
-# SimpleAdId
+# Simple Ad Id
 A convinient way to retrieve 'Advertising ID' and 'Is Tracking Enabled' flag without any Play Services dependencies in Android applications.
 
 ## Install
