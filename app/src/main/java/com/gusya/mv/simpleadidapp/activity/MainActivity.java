@@ -8,10 +8,6 @@ import android.widget.TextView;
 import com.gusya.mv.simpleadid.R;
 import com.gusya.mv.simpleadid.SimpleAdId;
 
-/**
- * Created by Gusya on 29/04/2017.
- */
-
 public class MainActivity extends Activity{
 
     @Override
