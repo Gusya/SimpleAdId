@@ -5,7 +5,7 @@ A convinient way to retrieve 'Advertising ID' and 'Is Tracking Enabled' flag wit
 
 Gradle:
 ```
-compile 'com.gusya.mv:simple-adid:0.9.0'
+compile 'com.gusya.mv:simple-adid:1.0.0'
 ```
 
 Code:
