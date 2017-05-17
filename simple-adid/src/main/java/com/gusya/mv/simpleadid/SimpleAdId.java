@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -31,11 +29,11 @@ public final class SimpleAdId {
     private static final String GMS_PACKAGE = "com.google.android.gms";
 
     private final SimpleAdListener mListener;
-    private final Handler mHandler;
+    private final IExecutor mExecutor;
 
-    protected SimpleAdId(SimpleAdListener listener, Handler handler){
+    protected SimpleAdId(SimpleAdListener listener, IExecutor executor){
         this.mListener = listener;
-        this.mHandler = handler;
+        this.mExecutor = executor;
     }
 
     protected void getGoogleAdIdInfo(Context context){
@@ -47,7 +45,7 @@ public final class SimpleAdId {
             // google play is not installed
             PackageManager.NameNotFoundException exception =
                     new PackageManager.NameNotFoundException(GP_PACKAGE_NOT_FOUND);
-            onErrorOnUI(exception);
+            onErrorOnExecutable(exception);
             return;
         }
 
@@ -63,26 +61,26 @@ public final class SimpleAdId {
                 boolean isAdTrackingEnabled = adIdInterface.isAdIdTrackingEnabled();
                 if (TextUtils.isEmpty(adId)) {
                     // empty ad id, something went wrong
-                    onErrorOnUI(new IllegalStateException("Ad ID is null or empty"));
+                    onErrorOnExecutable(new IllegalStateException("Ad ID is null or empty"));
                 } else {
                     // everything is ok, call listener
-                    onSuccessOnUI(new AdIdInfo(adId, isAdTrackingEnabled));
+                    onSuccessOnExecutable(new AdIdInfo(adId, isAdTrackingEnabled));
                 }
             } else {
                 // connection to service was not successful
-                onErrorOnUI(new IllegalStateException("Bad GMS service connection"));
+                onErrorOnExecutable(new IllegalStateException("Bad GMS service connection"));
             }
         } catch (IllegalStateException | RemoteException e){
             // can't process IBinder object
-            onErrorOnUI(e);
+            onErrorOnExecutable(e);
         } finally {
             // finally unbind from service
             context.unbindService(serviceConnection);
         }
     }
 
-    protected void onSuccessOnUI(final AdIdInfo info){
-        mHandler.post(new Runnable() {
+    protected void onSuccessOnExecutable(final AdIdInfo info){
+        mExecutor.post(new Runnable() {
             @Override
             public void run() {
                 mListener.onSuccess(info);
@@ -90,8 +88,8 @@ public final class SimpleAdId {
         });
     }
 
-    protected void onErrorOnUI(final Exception exception){
-        mHandler.post(new Runnable() {
+    protected void onErrorOnExecutable(final Exception exception){
+        mExecutor.post(new Runnable() {
             @Override
             public void run() {
                 mListener.onException(exception);
@@ -106,14 +104,42 @@ public final class SimpleAdId {
      *</p>
      *
      * @param context Application context
-     * @param simpleAdListener callback
+     * @param simpleAdListener listener
      */
-    public static final void getAdInfo(final Context context, final SimpleAdListener simpleAdListener){
+    public static void getAdInfo(final Context context, final SimpleAdListener simpleAdListener){
+        getAdInfo(context, true, simpleAdListener);
+    }
+
+    /**
+     * <p>
+     *     Retrieve 'Ad ID' and 'Is Limited Ad Tracking' flag.
+     *     Listener methods are invoked based on boolean parameter.
+     * </p>
+     * @param context Application context
+     * @param callbackOnUI receive Ad Info on UIThread if it is true and on invoker's thread(current thread) if it is false
+     * @param simpleAdListener listener
+     */
+    public static void getAdInfo(final Context context, final boolean callbackOnUI,
+                                 final SimpleAdListener simpleAdListener){
+        IExecutor executor = callbackOnUI ? new UiThreadExecutor() : new CurrentThreadExecutor();
+        getAdInfo(context, executor, simpleAdListener);
+    }
+
+    /**
+     * <p>
+     *     Retrieve 'Ad ID' and 'Is Limited Ad Tracking' flag.
+     *     Listener methods are invoked as designed by executor implementation passed in
+     * </p>
+     * @param context Application context
+     * @param executor IExecutor implementation to run listener's methods in
+     * @param simpleAdListener listener
+     */
+    public static void getAdInfo(final Context context, final IExecutor executor,
+                                 final SimpleAdListener simpleAdListener){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Handler handler = new Handler(Looper.getMainLooper());
-                new SimpleAdId(simpleAdListener, handler).getGoogleAdIdInfo(context);
+                new SimpleAdId(simpleAdListener, executor).getGoogleAdIdInfo(context);
             }
         }).start();
     }
