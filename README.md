@@ -9,11 +9,13 @@ compile 'com.gusya.mv:simple-adid:0.9.0'
 ```
 
 Code:
-Copy `SimpleAdId.java` from library module into your project or build this project as jar\aar file.
+Copy Java classes from library module into your project or build this project as jar\aar file.
 
 ## Usage
 
-Simply invoke static `SimpleAdId.getAdInfo` method while supplying application context and a listener object.
+### Basic
+
+Simply invoke static `SimpleAdId.getAdInfo(Context, SimpleAdListener)` while supplying application context and a listener object.
 Be aware that listener's methods will be invoked on UI thread.
 
 ```java
@@ -32,6 +34,15 @@ SimpleAdId.getAdInfo(getApplicationContext(), new SimpleAdId.SimpleAdListener() 
             }
         })
 ```
+
+### Advanced
+
+Simply invoke static `SimpleAdId.getAdInfo(Context, boolean, SimpleAdListener)` to use predefined thread to invoke listener's methods:
+* boolean = true for UI thread
+* boolean = false for current thread 
+
+Simply invoke static `SimpleAdId.getAdInfo(Context, IExecutor, SimpleAdListener)` to use your own IExecutor implementation.
+
 
 # License
 ```
